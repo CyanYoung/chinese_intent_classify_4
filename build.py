@@ -27,6 +27,8 @@ def make_pos(batch_size, seq_len, embed_len):
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+detail = False if torch.cuda.is_available() else True
+
 embed_len = 200
 seq_len = 30
 
@@ -41,7 +43,7 @@ with open(path_label_ind, 'rb') as f:
 
 class_num = len(label_inds)
 
-pos_mat = make_pos(batch_size, seq_len, embed_len)
+pos_mat = make_pos(batch_size, seq_len, embed_len).to(device)
 
 archs = {'trm': Trm}
 
@@ -114,7 +116,7 @@ def batch_dev(model, loss_func, loader):
     return total_loss / total_num, total_acc / total_num
 
 
-def fit(name, max_epoch, embed_mat, class_num, path_feats, detail):
+def fit(name, max_epoch, embed_mat, pos_mat, class_num, path_feats, detail):
     tensors = tensorize(load_feat(path_feats), device)
     bound = int(len(tensors) / 2)
     train_loader, dev_loader = get_loader(tensors[:bound]), get_loader(tensors[bound:])
@@ -162,4 +164,4 @@ if __name__ == '__main__':
     path_feats['label_train'] = 'feat/label_train.pkl'
     path_feats['sent_dev'] = 'feat/sent_dev.pkl'
     path_feats['label_dev'] = 'feat/label_dev.pkl'
-    fit('trm', 50, embed_mat, class_num, path_feats, detail=False)
+    fit('trm', 50, embed_mat, pos_mat, class_num, path_feats, detail)
