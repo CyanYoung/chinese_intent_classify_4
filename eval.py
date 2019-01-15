@@ -28,13 +28,9 @@ with open(path_label_ind, 'rb') as f:
 
 ind_labels = ind2label(label_inds)
 
-paths = {'dnn': 'model/dnn.pkl',
-         'cnn': 'model/cnn.pkl',
-         'rnn': 'model/rnn.pkl'}
+paths = {'trm': 'model/dnn_trm.pkl'}
 
-models = {'dnn': torch.load(map_item('dnn', paths), map_location=device),
-          'cnn': torch.load(map_item('cnn', paths), map_location=device),
-          'rnn': torch.load(map_item('rnn', paths), map_location=device)}
+models = {'trm': torch.load(map_item('trm', paths), map_location=device)}
 
 
 def test(name, sents, labels):
@@ -51,6 +47,4 @@ def test(name, sents, labels):
 
 
 if __name__ == '__main__':
-    test('dnn', sents, labels)
-    test('cnn', sents, labels)
-    test('rnn', sents, labels)
+    test('trm', sents, labels)
