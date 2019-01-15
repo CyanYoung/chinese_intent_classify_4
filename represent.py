@@ -12,12 +12,21 @@ min_freq = 1
 max_vocab = 5000
 seq_len = 30
 
+cls = '^'
+
 pad_ind, oov_ind = 0, 1
 
 path_word_vec = 'feat/word_vec.pkl'
 path_word_ind = 'feat/word_ind.pkl'
 path_embed = 'feat/embed.pkl'
 path_label_ind = 'feat/label_ind.pkl'
+
+
+def add_flag(texts, cls):
+    flag_texts = list()
+    for text in texts:
+        flag_texts.append(cls + text)
+    return flag_texts
 
 
 def tran_dict(word_inds, off):
@@ -90,7 +99,8 @@ def align(sent_words, labels, path_sent, path_label):
 
 
 def vectorize(path_data, path_sent, path_label, mode):
-    sents = flat_read(path_data, 'text')
+    texts = flat_read(path_data, 'text')
+    sents = add_flag(texts, cls)
     sent_words = [list(sent) for sent in sents]
     labels = flat_read(path_data, 'label')
     if mode == 'train':
