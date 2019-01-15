@@ -120,7 +120,7 @@ def fit(name, max_epoch, embed_mat, class_num, path_feats, detail):
     train_loader, dev_loader = get_loader(tensors[:bound]), get_loader(tensors[bound:])
     embed_mat = torch.Tensor(embed_mat)
     arch = map_item(name, archs)
-    model = arch(embed_mat, class_num).to(device)
+    model = arch(embed_mat, pos_mat, class_num, head=8, stack=4).to(device)
     loss_func = CrossEntropyLoss(reduction='sum')
     learn_rate, min_rate = 1e-3, 1e-5
     min_dev_loss = float('inf')
