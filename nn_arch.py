@@ -44,4 +44,5 @@ class Att(nn.Module):
             r = x
             x = self.lals[i](x)
             x = F.layer_norm(x + r, x.size()[1:])
+        x = x[:, -1, :]
         return self.dl(x)
