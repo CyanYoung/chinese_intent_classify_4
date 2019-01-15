@@ -1,72 +1,47 @@
+import math
+
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
-seq_len = 30
+def mul_att(layers, x, y):
+    querys, keys, vals, fuse = layers
+    c = list()
+    for i in range(len(querys)):
+        q, k, v = querys[i](y), keys[i](x), vals[i](x)
+        scale = math.sqrt(k.size(-1))
+        d = torch.matmul(q, k.permute(0, 2, 1)) / scale
+        a = F.softmax(d, dim=-1)
+        c_i = torch.matmul(a, v)
+        c.append(c_i)
+    x = torch.cat(c, dim=-1)
+    return fuse(x)
 
 
-class Dnn(nn.Module):
-    def __init__(self, embed_mat, class_num):
-        super(Dnn, self).__init__()
+class Att(nn.Module):
+    def __init__(self, embed_mat, pos_mat, class_num, head, stack):
+        super(Att, self).__init__()
         vocab_num, embed_len = embed_mat.size()
         self.embed = nn.Embedding(vocab_num, embed_len, _weight=embed_mat)
-        self.la1 = nn.Sequential(nn.Linear(embed_len, 200),
-                                 nn.ReLU())
-        self.la2 = nn.Sequential(nn.Linear(200, 200),
-                                 nn.ReLU())
+        self.pos = pos_mat
+        self.querys, self.keys, self.vals = [[[nn.Linear(embed_len, 200)] * head] * stack] * 3
+        self.fuses = [nn.Linear(200 * head, 200)] * stack
+        self.lals = [nn.Sequential(nn.Linear(200, 200),
+                                   nn.ReLU(),
+                                   nn.Linear(200, 200))] * stack
         self.dl = nn.Sequential(nn.Dropout(0.2),
                                 nn.Linear(200, class_num))
 
     def forward(self, x):
         x = self.embed(x)
-        x = torch.mean(x, dim=1)
-        x = self.la1(x)
-        x = self.la2(x)
-        return self.dl(x)
-
-
-class Cnn(nn.Module):
-    def __init__(self, embed_mat, class_num):
-        super(Cnn, self).__init__()
-        vocab_num, embed_len = embed_mat.size()
-        self.embed = nn.Embedding(vocab_num, embed_len, _weight=embed_mat)
-        self.cap1 = nn.Sequential(nn.Conv1d(embed_len, 64, kernel_size=1, padding=0),
-                                  nn.ReLU(),
-                                  nn.MaxPool1d(seq_len))
-        self.cap2 = nn.Sequential(nn.Conv1d(embed_len, 64, kernel_size=2, padding=1),
-                                  nn.ReLU(),
-                                  nn.MaxPool1d(seq_len + 1))
-        self.cap3 = nn.Sequential(nn.Conv1d(embed_len, 64, kernel_size=3, padding=1),
-                                  nn.ReLU(),
-                                  nn.MaxPool1d(seq_len))
-        self.la = nn.Sequential(nn.Linear(192, 200),
-                                nn.ReLU())
-        self.dl = nn.Sequential(nn.Dropout(0.2),
-                                nn.Linear(200, class_num))
-
-    def forward(self, x):
-        x = self.embed(x)
-        x = x.permute(0, 2, 1)
-        x1 = self.cap1(x)
-        x2 = self.cap2(x)
-        x3 = self.cap3(x)
-        x = torch.cat((x1, x2, x3), dim=1)
-        x = x.view(x.size(0), -1)
-        x = self.la(x)
-        return self.dl(x)
-
-
-class Rnn(nn.Module):
-    def __init__(self, embed_mat, class_num):
-        super(Rnn, self).__init__()
-        vocab_num, embed_len = embed_mat.size()
-        self.embed = nn.Embedding(vocab_num, embed_len, _weight=embed_mat)
-        self.ra = nn.LSTM(embed_len, 200, batch_first=True)
-        self.dl = nn.Sequential(nn.Dropout(0.2),
-                                nn.Linear(200, class_num))
-
-    def forward(self, x):
-        x = self.embed(x)
-        h, hc_n = self.ra(x)
-        x = h[:, -1, :]
+        x = x + self.pos
+        for i in range(len(self.querys)):
+            r = x
+            layers = [self.querys[i], self.keys[i], self.vals[i], self.fuses[i]]
+            x = mul_att(layers, x, x)
+            x = F.layer_norm(x + r, x.size()[1:])
+            r = x
+            x = self.lals[i](x)
+            x = F.layer_norm(x + r, x.size()[1:])
         return self.dl(x)
