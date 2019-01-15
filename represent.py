@@ -64,7 +64,7 @@ def sent2ind(words, word_inds, seq_len, keep_oov):
         elif keep_oov:
             seq.append(oov_ind)
     if len(seq) < seq_len:
-        return [pad_ind] * (seq_len - len(seq)) + seq
+        return seq + [pad_ind] * (seq_len - len(seq))
     else:
         return seq[-seq_len:]
 
