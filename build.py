@@ -2,17 +2,33 @@ import time
 
 import pickle as pk
 
+import math
+
 import torch
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.utils.data import TensorDataset, DataLoader
 
-from nn_arch import Dnn, Cnn, Rnn
+from nn_arch import Att
 
 from util import map_item
 
 
+def make_pos(batch_size, seq_len, embed_len):
+    p = torch.zeros(1, seq_len, embed_len)
+    for i in range(seq_len):
+        for j in range(embed_len):
+            if j % 2:
+                p[0, i, j] = math.sin(i / math.pow(1e5, j / embed_len))
+            else:
+                p[0, i, j] = math.cos(i / math.pow(1e5, (j - 1) / embed_len))
+    return p.repeat(batch_size, 1, 1)
+
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+embed_len = 200
+seq_len = 50
 
 batch_size = 32
 
@@ -25,13 +41,11 @@ with open(path_label_ind, 'rb') as f:
 
 class_num = len(label_inds)
 
-archs = {'dnn': Dnn,
-         'cnn': Cnn,
-         'rnn': Rnn}
+pos_mat = make_pos(batch_size, seq_len, embed_len)
 
-paths = {'dnn': 'model/dnn.pkl',
-         'cnn': 'model/cnn.pkl',
-         'rnn': 'model/rnn.pkl'}
+archs = {'att': Att}
+
+paths = {'att': 'model/att.pkl'}
 
 
 def load_feat(path_feats):
@@ -148,6 +162,4 @@ if __name__ == '__main__':
     path_feats['label_train'] = 'feat/label_train.pkl'
     path_feats['sent_dev'] = 'feat/sent_dev.pkl'
     path_feats['label_dev'] = 'feat/label_dev.pkl'
-    fit('dnn', 50, embed_mat, class_num, path_feats, detail=False)
-    fit('cnn', 50, embed_mat, class_num, path_feats, detail=False)
-    fit('rnn', 50, embed_mat, class_num, path_feats, detail=False)
+    fit('att', 50, embed_mat, class_num, path_feats, detail=False)
