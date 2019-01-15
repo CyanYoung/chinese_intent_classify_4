@@ -28,7 +28,7 @@ def make_pos(batch_size, seq_len, embed_len):
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 embed_len = 200
-seq_len = 50
+seq_len = 30
 
 batch_size = 32
 
