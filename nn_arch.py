@@ -19,9 +19,9 @@ def mul_att(layers, x, y):
     return fuse(x)
 
 
-class Att(nn.Module):
+class Trm(nn.Module):
     def __init__(self, embed_mat, pos_mat, class_num, head, stack):
-        super(Att, self).__init__()
+        super(Trm, self).__init__()
         vocab_num, embed_len = embed_mat.size()
         self.embed = nn.Embedding(vocab_num, embed_len, _weight=embed_mat)
         self.pos = pos_mat

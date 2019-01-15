@@ -9,7 +9,7 @@ from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 from torch.utils.data import TensorDataset, DataLoader
 
-from nn_arch import Att
+from nn_arch import Trm
 
 from util import map_item
 
@@ -43,9 +43,9 @@ class_num = len(label_inds)
 
 pos_mat = make_pos(batch_size, seq_len, embed_len)
 
-archs = {'att': Att}
+archs = {'trm': Trm}
 
-paths = {'att': 'model/att.pkl'}
+paths = {'trm': 'model/dnn_trm.pkl'}
 
 
 def load_feat(path_feats):
@@ -162,4 +162,4 @@ if __name__ == '__main__':
     path_feats['label_train'] = 'feat/label_train.pkl'
     path_feats['sent_dev'] = 'feat/sent_dev.pkl'
     path_feats['label_dev'] = 'feat/label_dev.pkl'
-    fit('att', 50, embed_mat, class_num, path_feats, detail=False)
+    fit('trm', 50, embed_mat, class_num, path_feats, detail=False)
