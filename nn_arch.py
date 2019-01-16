@@ -11,7 +11,6 @@ class Trm(nn.Module):
         vocab_num, embed_len = embed_mat.size()
         self.embed = nn.Embedding(vocab_num, embed_len, _weight=embed_mat)
         self.pos = pos_mat
-        self.stack = stack
         self.encodes = nn.ModuleList([TrmEncode(embed_len, head) for _ in range(stack)])
         self.dl = nn.Sequential(nn.Dropout(0.2),
                                 nn.Linear(200, class_num))
@@ -19,8 +18,8 @@ class Trm(nn.Module):
     def forward(self, x):
         x = self.embed(x)
         x = x + self.pos
-        for i in range(self.stack):
-            x = self.encodes[i](x)
+        for encode in self.encodes:
+            x = encode(x)
         x = x[:, 0, :]
         return self.dl(x)
 
