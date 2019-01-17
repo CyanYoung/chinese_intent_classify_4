@@ -17,7 +17,8 @@ class Trm(nn.Module):
 
     def forward(self, x):
         x = self.embed(x)
-        x = x + self.pos
+        p = self.pos.repeat(x.size(0), 1, 1)
+        x = x + p
         for encode in self.encodes:
             x = encode(x)
         x = x[:, 0, :]

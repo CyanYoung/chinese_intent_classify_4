@@ -14,15 +14,15 @@ from nn_arch import Trm
 from util import map_item
 
 
-def make_pos(batch_size, seq_len, embed_len):
-    p = torch.zeros(1, seq_len, embed_len)
+def make_pos(seq_len, embed_len):
+    pos = torch.zeros(1, seq_len, embed_len)
     for i in range(seq_len):
         for j in range(embed_len):
             if j % 2:
-                p[0, i, j] = math.sin(i / math.pow(1e5, j / embed_len))
+                pos[0, i, j] = math.sin(i / math.pow(1e5, j / embed_len))
             else:
-                p[0, i, j] = math.cos(i / math.pow(1e5, (j - 1) / embed_len))
-    return p.repeat(batch_size, 1, 1)
+                pos[0, i, j] = math.cos(i / math.pow(1e5, (j - 1) / embed_len))
+    return pos
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -43,7 +43,7 @@ with open(path_label_ind, 'rb') as f:
 
 class_num = len(label_inds)
 
-pos_mat = make_pos(batch_size, seq_len, embed_len).to(device)
+pos_mat = make_pos(seq_len, embed_len).to(device)
 
 archs = {'trm': Trm}
 
@@ -122,7 +122,7 @@ def fit(name, max_epoch, embed_mat, pos_mat, class_num, path_feats, detail):
     train_loader, dev_loader = get_loader(tensors[:bound]), get_loader(tensors[bound:])
     embed_mat = torch.Tensor(embed_mat)
     arch = map_item(name, archs)
-    model = arch(embed_mat, pos_mat, class_num, head=8, stack=4).to(device)
+    model = arch(embed_mat, pos_mat, class_num, head=4, stack=2).to(device)
     loss_func = CrossEntropyLoss(reduction='sum')
     learn_rate, min_rate = 1e-3, 1e-5
     min_dev_loss = float('inf')
