@@ -37,8 +37,8 @@ class TrmEncode(nn.Module):
                                  nn.ReLU(),
                                  nn.Linear(200, 200))
 
-    def mul_att(self, x):
-        q = self.qry(x).view(x.size(0), x.size(1), self.head, -1).transpose(1, 2)
+    def mul_att(self, x, y):
+        q = self.qry(y).view(x.size(0), x.size(1), self.head, -1).transpose(1, 2)
         k = self.key(x).view(x.size(0), x.size(1), self.head, -1).transpose(1, 2)
         v = self.val(x).view(x.size(0), x.size(1), self.head, -1).transpose(1, 2)
         d = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(k.size(-1))
@@ -49,7 +49,7 @@ class TrmEncode(nn.Module):
 
     def forward(self, x):
         r = x
-        x = self.mul_att(x)
+        x = self.mul_att(x, x)
         x = F.layer_norm(x + r, x.size()[1:])
         r = x
         x = self.lal(x)
