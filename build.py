@@ -14,12 +14,25 @@ from nn_arch import Trm
 from util import map_item
 
 
+def get_pos(seq_len, embed_len):
+    pos = torch.zeros(seq_len, embed_len)
+    for i in range(seq_len):
+        for j in range(embed_len):
+            if j % 2:
+                pos[i, j] = math.sin(i / math.pow(1e5, j / embed_len))
+            else:
+                pos[i, j] = math.cos(i / math.pow(1e5, (j - 1) / embed_len))
+    return torch.unsqueeze(pos, dim=0)
+
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 detail = False if torch.cuda.is_available() else True
 
 embed_len = 200
 seq_len = 30
+
+head, stack = 4, 2
 
 batch_size = 32
 
@@ -31,6 +44,8 @@ with open(path_label_ind, 'rb') as f:
     label_inds = pk.load(f)
 
 class_num = len(label_inds)
+
+pos_mat = get_pos(seq_len, embed_len).to(device)
 
 archs = {'trm': Trm}
 
@@ -103,25 +118,12 @@ def batch_dev(model, loss_func, loader):
     return total_loss / total_num, total_acc / total_num
 
 
-def get_pos(seq_len, embed_len):
-    pos = torch.zeros(seq_len, embed_len)
-    for i in range(seq_len):
-        for j in range(embed_len):
-            if j % 2:
-                pos[i, j] = math.sin(i / math.pow(1e5, j / embed_len))
-            else:
-                pos[i, j] = math.cos(i / math.pow(1e5, (j - 1) / embed_len))
-    return torch.unsqueeze(pos, dim=0)
-
-
 def fit(name, max_epoch, embed_mat, class_num, path_feats, detail):
     tensors = tensorize(load_feat(path_feats), device)
     bound = int(len(tensors) / 2)
     train_loader, dev_loader = get_loader(tensors[:bound]), get_loader(tensors[bound:])
     embed_mat = torch.Tensor(embed_mat)
     arch = map_item(name, archs)
-    pos_mat = get_pos(seq_len, embed_len).to(device)
-    head, stack = 4, 2
     model = arch(embed_mat, pos_mat, class_num, head, stack).to(device)
     loss_func = CrossEntropyLoss(reduction='sum')
     learn_rate, min_rate = 1e-3, 1e-5
