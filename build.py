@@ -14,7 +14,7 @@ from nn_arch import Trm
 from util import map_item
 
 
-def make_pos(seq_len, embed_len):
+def get_pos(seq_len, embed_len):
     pos = torch.zeros(seq_len, embed_len)
     for i in range(seq_len):
         for j in range(embed_len):
@@ -43,7 +43,7 @@ with open(path_label_ind, 'rb') as f:
 
 class_num = len(label_inds)
 
-pos_mat = make_pos(seq_len, embed_len).to(device)
+pos_mat = get_pos(seq_len, embed_len).to(device)
 
 archs = {'trm': Trm}
 
