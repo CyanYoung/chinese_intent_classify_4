@@ -8,12 +8,23 @@ import torch.nn.functional as F
 class Trm(nn.Module):
     def __init__(self, embed_mat, pos_mat, class_num, head, stack):
         super(Trm, self).__init__()
+        self.encode = TrmEncode(embed_mat, pos_mat, head, stack)
+        self.dl = nn.Sequential(nn.Dropout(0.2),
+                                nn.Linear(200, class_num))
+
+    def forward(self, x):
+        x = self.encode(x)
+        x = x[:, 0, :]
+        return self.dl(x)
+
+
+class TrmEncode(nn.Module):
+    def __init__(self, embed_mat, pos_mat, head, stack):
+        super(TrmEncode, self).__init__()
         vocab_num, embed_len = embed_mat.size()
         self.embed = nn.Embedding(vocab_num, embed_len, _weight=embed_mat)
         self.pos = pos_mat
         self.layers = nn.ModuleList([EncodeLayer(embed_len, head) for _ in range(stack)])
-        self.dl = nn.Sequential(nn.Dropout(0.2),
-                                nn.Linear(200, class_num))
 
     def forward(self, x):
         p = self.pos.repeat(x.size(0), 1, 1)
@@ -21,8 +32,7 @@ class Trm(nn.Module):
         x = x + p
         for layer in self.layers:
             x = layer(x)
-        x = x[:, 0, :]
-        return self.dl(x)
+        return x
 
 
 class EncodeLayer(nn.Module):
