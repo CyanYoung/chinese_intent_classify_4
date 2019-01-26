@@ -48,7 +48,7 @@ class EncodeLayer(nn.Module):
                                  nn.Linear(200, 200))
 
     def mul_att(self, x, y):
-        q = self.qry(y).view(x.size(0), x.size(1), self.head, -1).transpose(1, 2)
+        q = self.qry(y).view(y.size(0), y.size(1), self.head, -1).transpose(1, 2)
         k = self.key(x).view(x.size(0), x.size(1), self.head, -1).transpose(1, 2)
         v = self.val(x).view(x.size(0), x.size(1), self.head, -1).transpose(1, 2)
         d = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(k.size(-1))
