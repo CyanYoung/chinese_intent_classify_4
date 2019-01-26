@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score
 
 from build import tensorize
 
-from classify import ind2label
+from classify import ind_labels, models
 
 from util import flat_read, map_item
 
@@ -17,20 +17,11 @@ device = torch.device('cpu')
 path_test = 'data/test.csv'
 path_sent = 'feat/sent_test.pkl'
 path_label = 'feat/label_test.pkl'
-path_label_ind = 'feat/label_ind.pkl'
 texts = flat_read(path_test, 'text')
 with open(path_sent, 'rb') as f:
     sents = pk.load(f)
 with open(path_label, 'rb') as f:
     labels = pk.load(f)
-with open(path_label_ind, 'rb') as f:
-    label_inds = pk.load(f)
-
-ind_labels = ind2label(label_inds)
-
-paths = {'trm': 'model/dnn_trm.pkl'}
-
-models = {'trm': torch.load(map_item('trm', paths), map_location=device)}
 
 
 def test(name, sents, labels):
