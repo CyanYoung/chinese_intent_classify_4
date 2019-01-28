@@ -39,7 +39,6 @@ class EncodeLayer(nn.Module):
     def __init__(self, embed_len, head):
         super(EncodeLayer, self).__init__()
         self.head = head
-        self.lns = nn.ModuleList([nn.LayerNorm(200) for _ in range(2)])
         self.qry = nn.Linear(embed_len, 200 * head)
         self.key = nn.Linear(embed_len, 200 * head)
         self.val = nn.Linear(embed_len, 200 * head)
@@ -47,6 +46,7 @@ class EncodeLayer(nn.Module):
         self.lal = nn.Sequential(nn.Linear(200, 200),
                                  nn.ReLU(),
                                  nn.Linear(200, 200))
+        self.lns = nn.ModuleList([nn.LayerNorm(200) for _ in range(2)])
 
     def mul_att(self, x, y):
         q = self.qry(y).view(y.size(0), y.size(1), self.head, -1).transpose(1, 2)
