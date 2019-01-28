@@ -39,6 +39,7 @@ class EncodeLayer(nn.Module):
     def __init__(self, embed_len, head):
         super(EncodeLayer, self).__init__()
         self.head = head
+        self.lns = nn.ModuleList([nn.LayerNorm(200) for _ in range(2)])
         self.qry = nn.Linear(embed_len, 200 * head)
         self.key = nn.Linear(embed_len, 200 * head)
         self.val = nn.Linear(embed_len, 200 * head)
@@ -60,7 +61,7 @@ class EncodeLayer(nn.Module):
     def forward(self, x):
         r = x
         x = self.mul_att(x, x)
-        x = F.layer_norm(x + r, x.size()[1:])
+        x = self.lns[0](x + r)
         r = x
         x = self.lal(x)
-        return F.layer_norm(x + r, x.size()[1:])
+        return self.lns[1](x + r)
