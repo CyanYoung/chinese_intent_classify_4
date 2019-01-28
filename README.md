@@ -22,7 +22,7 @@ add_flag() 添加 bos，sent2ind() 将每句转换为词索引并填充为相同
 
 tensorize() 将 array 转换为 LongTensor，get_loader() 打乱并划分 batch
 
-通过 dnn 的 trm 构建分类模型、bos 作为整句特征，dev_loss 降低则保存模型
+通过 dnn 的 trm 构建分类模型、bos 代表整句特征，dev_loss 降低则保存模型
 
 trap_count > max_count 则 learn_rate / 10、小于 min_rate 则早停止
 
