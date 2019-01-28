@@ -12,19 +12,13 @@ prepare() 将按类文件保存的数据汇总、去重，去除停用词，统�
 
 #### 3.represent
 
-Dictionary() 建立词索引的字典，filter_extremes() 过滤低频词
-
-tran_dict() 为填充词、未录词保留索引 0、1，label2ind() 建立标签索引的字典
-
 add_flag() 添加 bos，sent2ind() 将每句转换为词索引并填充为相同长度
 
 #### 4.build
 
-tensorize() 将 array 转换为 LongTensor，get_loader() 打乱并划分 batch
+通过 dnn 的 trm 构建分类模型、bos 代表整句特征，对编码器词特征 x 多头
 
-通过 dnn 的 trm 构建分类模型、bos 代表整句特征，dev_loss 降低则保存模型
-
-trap_count > max_count 则 learn_rate / 10、小于 min_rate 则早停止
+线性映射得到 q、k、v，使用多点积注意力得到语境向量 c、再线性映射进行降维
 
 #### 5.classify
 
