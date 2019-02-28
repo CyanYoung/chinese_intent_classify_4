@@ -75,7 +75,7 @@ def sent2ind(words, word_inds, seq_len, keep_oov):
     if len(seq) < seq_len:
         return seq + [pad_ind] * (seq_len - len(seq))
     else:
-        return seq[-seq_len:]
+        return seq[:seq_len]
 
 
 def align(sent_words, labels, path_sent, path_label):
