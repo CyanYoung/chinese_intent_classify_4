@@ -22,7 +22,7 @@ path_embed = 'feat/embed.pkl'
 path_label_ind = 'feat/label_ind.pkl'
 
 
-def add_flag(texts, bos):
+def add_flag(texts):
     flag_texts = list()
     for text in texts:
         flag_texts.append(bos + text)
@@ -100,7 +100,7 @@ def align(sent_words, labels, path_sent, path_label):
 
 def vectorize(path_data, path_sent, path_label, mode):
     texts = flat_read(path_data, 'text')
-    sents = add_flag(texts, bos)
+    sents = add_flag(texts)
     sent_words = [list(sent) for sent in sents]
     labels = flat_read(path_data, 'label')
     if mode == 'train':
