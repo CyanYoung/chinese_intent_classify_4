@@ -23,6 +23,8 @@ device = torch.device('cpu')
 
 seq_len = 30
 
+bos = '<'
+
 path_stop_word = 'dict/stop_word.txt'
 path_type_dir = 'dict/word_type'
 path_homo = 'dict/homo.csv'
@@ -52,6 +54,7 @@ def predict(text, name):
         text = re.sub(word_re, word_type, text)
     text = word_replace(text, homo_dict)
     text = word_replace(text, syno_dict)
+    text = bos + text
     pad_seq = sent2ind(text, word_inds, seq_len, keep_oov=True)
     sent = torch.LongTensor([pad_seq]).to(device)
     model = map_item(name, models)
