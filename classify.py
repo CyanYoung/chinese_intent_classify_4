@@ -43,7 +43,7 @@ with open(path_label_ind, 'rb') as f:
 
 ind_labels = ind2label(label_inds)
 
-paths = {'trm': 'model/dnn_trm.pkl'}
+paths = {'trm': 'model/trm.pkl'}
 
 models = {'trm': torch.load(map_item('trm', paths), map_location=device)}
 
