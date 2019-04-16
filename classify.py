@@ -40,7 +40,7 @@ models = {'trm': torch.load(map_item('trm', paths), map_location=device)}
 
 
 def predict(text, name):
-    text = bos + text
+    text = bos + clean(text)
     pad_seq = sent2ind(text, word_inds, seq_len, keep_oov=True)
     sent = torch.LongTensor([pad_seq]).to(device)
     model = map_item(name, models)
@@ -60,5 +60,4 @@ def predict(text, name):
 if __name__ == '__main__':
     while True:
         text = input('text: ')
-        text = clean(text)
         print('trm: %s' % predict(text, 'trm'))
