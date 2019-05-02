@@ -25,7 +25,7 @@ with open(path_label, 'rb') as f:
 
 class_num = len(ind_labels)
 
-paths = {'trm': 'stat/metric/trm.csv'}
+paths = {'trm': 'metric/trm.csv'}
 
 
 def test(name, sents, labels):
