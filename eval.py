@@ -28,7 +28,7 @@ class_num = len(ind_labels)
 paths = {'trm': 'metric/trm.csv'}
 
 
-def test(name, sents, labels):
+def test(name, sents, labels, detail):
     sents, labels = tensorize([sents, labels], device)
     model = map_item(name, models)
     with torch.no_grad():
@@ -43,10 +43,11 @@ def test(name, sents, labels):
             f.write('%s,%.2f,%.2f\n' % (ind_labels[i], precs[i], recs[i]))
     f1 = f1_score(labels, preds, average='weighted')
     print('\n%s f1: %.2f - acc: %.2f\n' % (name, f1, accuracy_score(labels, preds)))
-    for text, label, pred in zip(texts, labels.numpy(), preds.numpy()):
-        if label != pred:
-            print('{}: {} -> {}'.format(text, ind_labels[label], ind_labels[pred]))
+    if detail:
+        for text, label, pred in zip(texts, labels.numpy(), preds.numpy()):
+            if label != pred:
+                print('{}: {} -> {}'.format(text, ind_labels[label], ind_labels[pred]))
 
 
 if __name__ == '__main__':
-    test('trm', sents, labels)
+    test('trm', sents, labels, detail=False)
