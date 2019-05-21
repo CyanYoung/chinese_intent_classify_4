@@ -14,6 +14,8 @@ from util import flat_read, map_item
 
 device = torch.device('cpu')
 
+detail = False
+
 path_test = 'data/test.csv'
 path_sent = 'feat/sent_test.pkl'
 path_label = 'feat/label_test.pkl'
@@ -28,7 +30,7 @@ class_num = len(ind_labels)
 paths = {'trm': 'metric/trm.csv'}
 
 
-def test(name, sents, labels, detail):
+def test(name, sents, labels):
     sents, labels = tensorize([sents, labels], device)
     model = map_item(name, models)
     with torch.no_grad():
@@ -50,4 +52,4 @@ def test(name, sents, labels, detail):
 
 
 if __name__ == '__main__':
-    test('trm', sents, labels, detail=False)
+    test('trm', sents, labels)
